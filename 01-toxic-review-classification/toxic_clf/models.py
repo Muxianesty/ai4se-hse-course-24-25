@@ -4,6 +4,7 @@ import numpy as np
 from sklearn.model_selection import StratifiedKFold
 from sklearn.linear_model import LogisticRegression
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics import confusion_matrix, log_loss, f1_score
 from scipy.sparse import spmatrix
 from tqdm import tqdm
@@ -13,11 +14,11 @@ KFOLD_SPLITS = 10
 
 def classifier(dataset: datasets.Dataset, model_str):
     skf = StratifiedKFold(n_splits=KFOLD_SPLITS, random_state=42, shuffle=True)
-    vectorizer = TfidfVectorizer()
+    vectorizer = CountVectorizer()
     x = vectorizer.fit_transform(dataset["message"]).toarray()
     y_true = np.array(dataset["is_toxic"]).astype(int)
     y_pred = np.array([None] * x.shape[0])
-    model = LogisticRegression(n_jobs=9)
+    model = LogisticRegression(penalty="l1", solver="liblinear", C=1.35 )
     for train_index, test_index in tqdm(skf.split(x, y_true)):
         model.fit(X=x[train_index], y=y_true[train_index])
         y_pred[test_index] = model.predict(x[test_index])
