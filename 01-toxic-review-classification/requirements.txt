@@ -3,4 +3,7 @@ evaluate==0.4.2
 numpy==1.26.4
 scikit-learn==1.5.1
 tqdm==4.66.4
+transformers
+torch
 openpyxl
+accelerate>=0.26.0

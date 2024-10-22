@@ -1,3 +1,4 @@
+import datasets
 import numpy as np
 from sklearn.model_selection import StratifiedKFold
 from sklearn.linear_model import LogisticRegression
@@ -7,7 +8,10 @@ from tqdm import tqdm
 
 KFOLD_SPLITS = 10
 
-def classifier(X: np.ndarray, y: np.ndarray):
+def classifier(dataset: datasets.Dataset):
+    X = np.array(dataset["message"])
+    y = np.array(dataset["is_toxic"])
+
     skf = StratifiedKFold(n_splits=KFOLD_SPLITS, random_state=42, shuffle=True)
     vectorizer = CountVectorizer()
     x = vectorizer.fit_transform(X).toarray()

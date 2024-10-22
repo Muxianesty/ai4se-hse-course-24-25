@@ -9,7 +9,4 @@ MODEL_MAP = {
 }
 
 def classifier(dataset: datasets.Dataset, model_str: str):
-    MODEL_MAP[model_str](
-        np.array(dataset["message"]),
-        np.array(dataset["is_toxic"]),
-    )
+    MODEL_MAP[model_str](dataset)
