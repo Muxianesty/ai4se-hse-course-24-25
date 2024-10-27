@@ -19,8 +19,8 @@ git submodule update --init
 Установка всех зависимостей:
 
 ```
-venv/Scripts/python -m pip install -r requirements.tvt
-venv/Scripts/python -m pip install -r requirements_dev.tvr
+venv/Scripts/python -m pip install -r requirements.txt
+venv/Scripts/python -m pip install -r requirements_dev.txt
 ```
 
 ## Работа с классическими методами ML
@@ -55,7 +55,7 @@ Final F1-score: 0.7406547480845136
 ```
 
 Я пришел к выводу, что теперь стоило бы попробовать другую форму извлечения признаков - обычный bag-of-words вместо tf-idf.
-Идействительно - показатели F1-метрики увеличились:
+И действительно - показатели F1-метрики увеличились:
 
 ```
 Для kfold=10, count, l1, liblinear:
