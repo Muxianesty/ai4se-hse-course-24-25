@@ -79,4 +79,25 @@ Final F1-score: 0.7798475867908552
 ```
 
 ## Работа с трансформером CodeBERT
+В работе с CodeBERT использовались модель и токенизатор `microsoft/codebert-base`.
 
+В качестве показателя learning rate использовалась дробь `0,0001`.
+Batch'и для обучения и валидации были выделены одинаковые - `16`.
+Размеры валидационной и тренировочной выборок относятся как `1 к 9`.
+
+По итогу одной эпохи были получены следующие результаты:
+
+```
+Training loss: 0.322000
+Validation loss: 0.236498
+True non-toxic comments recognized: 1000
+Non-toxic comments treated as toxic: 47
+Toxic comments treated as non-toxic: 48
+True toxic comments recognized: 196
+Final F1 score: 0.926356
+```
+
+Проверка была сделана в Google Collab с Jupyter Notebook-файлом:
+https://colab.research.google.com/drive/1BJAWWUov8k4qV4DxJfQqe2Yz7IY_4x1Y#scrollTo=sWHcbZJPpbdt
+
+Сам файл также прилагается: `Practicum_1,_Codebert_[Litvinov_M].ipynb`
