@@ -1,6 +1,7 @@
 ### Python ###
 venv
 prepared-data
+prepared-dataset
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
