@@ -25,6 +25,14 @@ def parse_args():
         default=default_data_path,
     )
 
+    prepare_data_parser.add_argument(
+        '-l',
+        '--lang',
+        help='Dataset code language',
+        choices=['python'],
+        default='python',
+    )
+
     predict_parser = subparsers.add_parser('predict-names')
     predict_parser.set_defaults(func=predict_names)
     predict_parser.add_argument(
@@ -44,7 +52,7 @@ def parse_args():
 
 
 def prepare_data(args):
-    dataset = prepare()
+    dataset = prepare(args.lang)
     save_dataset(dataset, args.output)
 
 
