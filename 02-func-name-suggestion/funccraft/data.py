@@ -11,7 +11,8 @@ PARSER = Parser(PY_LANG)
 
 def isComment(node: Node) -> bool:
     node_text = node.text.decode()
-    return node.type == "comment" or (node.type == "expression_statement" and node_text[0:3] == "\"\"\"")
+    has_comment_part = len(node_text) > 3 and (node_text[0:3] == "\"\"\"" or node_text[0:3] == "'''")
+    return node.type == "comment" or (node.type == "expression_statement" and has_comment_part)
 
 def parseFunc(func_str: str) -> Tuple[str, str, str]:
     tree = PARSER.parse(func_str.encode())
@@ -68,7 +69,7 @@ def prepare() -> datasets.Dataset:
 
     dataset = dataset.add_column("NEW_func_name", func_names)
     dataset = dataset.add_column("NEW_whole_func_string", func_strings)
-    dataset = dataset.add_column("NEW_func_documentation_string", func_docs)
+    dataset = dataset.add_column("NEW_func_no_documentation_string", func_docs)
 
     return dataset
 
@@ -79,3 +80,5 @@ def load_dataset(path: Path) -> datasets.Dataset:
 
 def save_dataset(dataset: datasets.Dataset, path: Path) -> None:
     dataset.save_to_disk(str(path))
+    selected = dataset.select([9, 19, 21, 62])
+    selected.to_json(str(path.joinpath("9-19-21-62.json")))
