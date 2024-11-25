@@ -2,13 +2,15 @@ from typing import Tuple
 from tree_sitter import Language, Tree, Node, Parser
 import tree_sitter_python
 
+import re
+
 PY_LANG = Language(tree_sitter_python.language())
 PARSER = Parser(PY_LANG)
 
 def isComment(node: Node) -> bool:
     node_text = node.text.decode()
-    has_comment_part = len(node_text) > 3 and (node_text[0:3] == "\"\"\"" or node_text[0:3] == "'''")
-    return node.type == "comment" or (node.type == "expression_statement" and has_comment_part)
+    has_comment_part = re.match(r"^r?(?:(?:\"\"\")|(?:'''))", node_text) is not None
+    return (node.type == "comment" or (node.type == "expression_statement" and has_comment_part))
 
 def parseFunc(func_str: str) -> Tuple[str, str, str]:
     tree = PARSER.parse(func_str.encode())
@@ -30,15 +32,31 @@ def parseFunc(func_str: str) -> Tuple[str, str, str]:
     begin_shift = func_body_node.children[0].start_byte
     curr_shift = 0
     
-    for node in func_body_node.children:
-        if isComment(node):
-            left = node.start_byte - curr_shift - begin_shift
-            right = node.end_byte - curr_shift - begin_shift
+    curr_node = func_body_node.walk()
+    already_returned = False
+    while (True):
+        if not already_returned and isComment(curr_node.node):
+            left = curr_node.node.start_byte - curr_shift - begin_shift
+            right = curr_node.node.end_byte - curr_shift - begin_shift
             add_shift = right - left
             first_part = func_body_stripped_byte_str[:left]
             second_part = func_body_stripped_byte_str[right:]
             curr_shift += add_shift
             func_body_stripped_byte_str = first_part + second_part
+
+        if not already_returned and curr_node.goto_first_child():
+            continue
+
+        already_returned = False
+        
+        if curr_node.goto_next_sibling():
+            continue
+
+        if curr_node.node == func_body_node:
+            break
+
+        already_returned = curr_node.goto_parent()
+        
     func_body_stripped_str = func_body_stripped_byte_str.decode()
 
     return (func_name_str, func_body_str, func_body_stripped_str)
