@@ -10,11 +10,13 @@
 python3 -m venv venv
 ```
 
+Далее требуется активировать окружение платформо-зависимым образом: например, на Windows это делается с помощью файла `venv/Scripts/activate.bat`.
+
 Установка всех зависимостей производится:
 
 ```
-venv/Scripts/python -m pip install -r requirements.txt
-venv/Scripts/python -m pip install -r requirements_dev.txt
+python3 -m pip install -r requirements.txt
+python3 -m pip install -r requirements_dev.txt
 ```
 
 ## Подзадача 1: Подготовка набора данных
@@ -27,7 +29,7 @@ venv/Scripts/python -m pip install -r requirements_dev.txt
 Подготовка набора данных производится следующим образом:
 
 ```
-venv/Scripts/python.exe main.py prepare-data
+python3 main.py prepare-data
 ```
 
 ## Подзадача 2: Использование предобученных моделей для предсказания имен функций
@@ -39,7 +41,7 @@ venv/Scripts/python.exe main.py prepare-data
 Предсказание производится следующим образом:
 
 ```
-venv/Scripts/python.exe main.py predict-names
+python3 main.py predict-names
 ```
 
 По результатам нескольких запусков в среднем были получены следующие результаты:
@@ -60,7 +62,7 @@ Evaluation results:
 Предсказание производится следующим образом:
 
 ```
-venv/Scripts/python.exe main.py predict-names --full
+python3 main.py predict-names --full
 ```
 
 По результатам нескольких запусков в среднем были получены следующие результаты:
@@ -75,3 +77,5 @@ Evaluation results:
  'rougeLsum': np.float64(0.40822476412476427)}
 ********************************************************************************
 ```
+
+При задействовании документации в предсказании имен функций можно отметить улучшенные значения необходимых метрик.
