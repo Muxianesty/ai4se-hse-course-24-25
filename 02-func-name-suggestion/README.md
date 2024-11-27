@@ -14,7 +14,7 @@ python3 -m venv venv
 
 Установка всех зависимостей производится:
 
-```
+```shell
 python3 -m pip install -r requirements.txt
 python3 -m pip install -r requirements_dev.txt
 ```
@@ -28,7 +28,7 @@ python3 -m pip install -r requirements_dev.txt
 
 Подготовка набора данных производится следующим образом:
 
-```
+```shell
 python3 main.py prepare-data
 ```
 
@@ -40,13 +40,13 @@ python3 main.py prepare-data
 
 Предсказание производится следующим образом:
 
-```
+```shell
 python3 main.py predict-names
 ```
 
 По результатам нескольких запусков в среднем были получены следующие результаты:
 
-```
+```shell
 ********************************************************************************
 Evaluation results:
 {'exact_match': np.float64(0.026),
@@ -61,13 +61,13 @@ Evaluation results:
 
 Предсказание производится следующим образом:
 
-```
+```shell
 python3 main.py predict-names --full
 ```
 
 По результатам нескольких запусков в среднем были получены следующие результаты:
 
-```
+```shell
 ********************************************************************************
 Evaluation results:
 {'exact_match': np.float64(0.053),
