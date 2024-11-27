@@ -1,16 +1,18 @@
-from typing import Tuple
-from tree_sitter import Language, Tree, Node, Parser
-import tree_sitter_python
-
 import re
+from tree_sitter import Language, Node, Parser
+import tree_sitter_python
+from typing import Tuple
+
 
 PY_LANG = Language(tree_sitter_python.language())
 PARSER = Parser(PY_LANG)
+
 
 def isComment(node: Node) -> bool:
     node_text = node.text.decode()
     has_comment_part = re.match(r"^r?(?:(?:\"\"\")|(?:'''))", node_text) is not None
     return (node.type == "comment" or (node.type == "expression_statement" and has_comment_part))
+
 
 def parseFunc(func_str: str) -> Tuple[str, str, str]:
     tree = PARSER.parse(func_str.encode())

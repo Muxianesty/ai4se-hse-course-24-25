@@ -1,8 +1,7 @@
 import argparse
-from pathlib import Path
-
 from funccraft.data import load_dataset, prepare, save_dataset
 from funccraft.models import predict
+from pathlib import Path
 
 
 def main():
@@ -48,6 +47,13 @@ def parse_args():
         default='Salesforce/codet5p-220m',
     )
 
+    predict_parser.add_argument(
+        '-f',
+        '--full',
+        help='Whether to use full function body for prediction (with comments)',
+        action='store_true'
+    )
+
     return parser.parse_args()
 
 
@@ -58,7 +64,7 @@ def prepare_data(args):
 
 def predict_names(args):
     dataset = load_dataset(args.dataset)
-    predict(dataset, args.model)
+    predict(dataset, args.model, args.full)
 
 
 if __name__ == '__main__':

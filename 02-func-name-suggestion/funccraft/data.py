@@ -1,13 +1,14 @@
-from pathlib import Path
-
 import datasets
+from pathlib import Path
 import python_funccraft
+
 
 DATASET_SIZE=1000
 
 LANG_MAP = {
     "python": python_funccraft.parseFunc,
 }
+
 
 def prepare(lang: str) -> datasets.Dataset:
     # Implement dataset preparation code here
@@ -32,7 +33,7 @@ def prepare(lang: str) -> datasets.Dataset:
 
     dataset = dataset.add_column("NEW_func_name", func_names)
     dataset = dataset.add_column("NEW_whole_func_string", func_strings)
-    dataset = dataset.add_column("NEW_func_no_documentation_string", func_docs)
+    dataset = dataset.add_column("NEW_docs_func_string", func_docs)
 
     return dataset
 

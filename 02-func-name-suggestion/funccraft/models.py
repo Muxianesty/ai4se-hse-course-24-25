@@ -1,78 +1,81 @@
 from collections.abc import Iterable
-from functools import cache
-from pprint import pprint
-
 import datasets
 import evaluate
- 
+from functools import cache
+from pprint import pprint
+import re
+from rouge_score import rouge_scorer
+from transformers import AutoTokenizer, T5ForConditionalGeneration
+from typing import Any, Dict
+
+
+DEVICE = "cuda"
+FUNC_PREFIX = """def <extra_id_0>():\n    """
+
 @cache
 def _init_metrics():
     return (evaluate.load('exact_match'), evaluate.load('rouge'))
 
 
+def whole_add_signature(element: Dict[str, Any]) -> Dict[str, Any]:
+    func_str = element["NEW_whole_func_string"]
+    func_str = FUNC_PREFIX + func_str
+    element["NEW_whole_func_string"] = func_str
+    return element
 
-def predict(dataset: datasets.Dataset, model: str) -> None:
+
+def docs_add_signature(element: Dict[str, Any]) -> Dict[str, Any]:
+    func_str = element["NEW_docs_func_string"]
+    func_str = FUNC_PREFIX + func_str
+    element["NEW_docs_func_string"] = func_str
+    return element
+
+
+def predict(dataset: datasets.Dataset, model_name: str, documented: bool) -> None:
     # Implement your function name prediction loop here
-    func_str = dataset[0]["whole_func_string"]
-    dataset.add_column("NEW_func_name", [None]*dataset.shape[0])
-    dataset.add_column("NEW_whole_func_string", [None]*dataset.shape[0])
-    dataset.add_column("NEW_func_documentation_string", [None]*dataset.shape[0])
-    py_lang = Language(tree_sitter_python.language())
-    parser = Parser(py_lang)
-    tree = parser.parse(func_str.encode())
-    root_node = tree.root_node
-    assert root_node.child_count == 1
-    func_node = root_node.child(0)
-    assert func_node.type == "function_definition"
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = T5ForConditionalGeneration.from_pretrained(model_name).to(DEVICE)
+    predictions = []
 
-    func_name_node = func_node.child_by_field_name("name")
-    assert func_name_node.type == "identifier"
-    func_name = func_name_node.text.decode()
+    ## Failed to properly use `input_columns` param - had to create two different functions.
+    if documented:
+        table_col_str = "NEW_whole_func_string"
+        dataset = dataset.map(whole_add_signature)
+    else:
+        table_col_str = "NEW_docs_func_string"
+        dataset = dataset.map(docs_add_signature)
 
-    func_body_node = func_node.child_by_field_name("body")
-    assert func_body_node.type == "block"
-    func_body_byte_str = func_body_node.text
-    func_body_str = func_body_byte_str.decode()
-    
-    func_body_stripped_byte_str = func_body_byte_str
-    begin_shift = func_body_node.children[0].start_byte
-    curr_shift = 0
-    
-    for node in func_body_node.children:
-        if isComment(node):
-            left = node.start_byte - curr_shift - begin_shift
-            right = node.end_byte - curr_shift - begin_shift
-            add_shift = right - left
-            first_part = func_body_stripped_byte_str[:left]
-            second_part = func_body_stripped_byte_str[right:]
-            curr_shift += add_shift
-            func_body_stripped_byte_str = first_part + second_part
+    print('*' * 80)
+    print(f"Using full function body (with comments): {documented}")
+    print(f"Dataset size: {dataset.shape[0]}")
+    print('*' * 80)
 
-    
-    
+    references = dataset["func_name"]
+    for id in range(dataset.shape[0]):
+        element = dataset[table_col_str][id]
+        print(id)
+        input = tokenizer.encode(element, return_tensors="pt", max_length=512, truncation=True).to(DEVICE)
+        output = model.generate(input)[0]
+        output_decoded = tokenizer.decode(output, skip_special_tokens=True).lstrip()
+        output_splitted = re.split(" |\n|\r|\t|\f|\.|\(", output_decoded)
+        if (len(output_splitted) > 0):
+            output_str = output_splitted[0]
+        else:
+            output_str = ""
+        predictions.append(output_str)
+        print('*' * 80)
 
-
-
-
-    
+    eval_results = run_evaluate(predictions=predictions, references=references)
+    print()
+    print('*' * 80)
+    print('Evaluation results:')
+    pprint(eval_results)
+    print('*' * 80)
+    print()
 
 
-
-    # predictions = ['func_one', 'func_three']
-    # references = ['func_one', 'func_two']
-
-    # eval_results = run_evaluate(predictions=predictions, references=references)
-    # print()
-    # print('*' * 80)
-    # print('Evaluation results:')
-    # pprint(eval_results)
-    # print('*' * 80)
-    # print()
-
-
-def run_evaluate(
-    predictions: Iterable[str], references: Iterable[str]
-) -> dict[str, float]:
+def run_evaluate(predictions: Iterable[str],
+                references: Iterable[str]) -> dict[str, float]:
     em, rouge = _init_metrics()
     em_score = em.compute(predictions=predictions, references=references)
     rouge_scores = rouge.compute(predictions=predictions, references=references)
