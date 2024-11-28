@@ -46,5 +46,6 @@ def load_dataset(path: Path) -> datasets.Dataset:
 
 def save_dataset(dataset: datasets.Dataset, path: Path) -> None:
     dataset.save_to_disk(str(path))
+    dataset.to_json(str(path.joinpath("full.json")))
     selected = dataset.select([9, 19, 21, 62])
     selected.to_json(str(path.joinpath("9-19-21-62.json")))

@@ -54,7 +54,7 @@ def predict(dataset: datasets.Dataset, model_name: str, documented: bool) -> Non
         input = tokenizer.encode(element, return_tensors="pt", max_length=512, truncation=True).to(DEVICE)
         output = model.generate(input)[0]
         output_decoded = tokenizer.decode(output, skip_special_tokens=True).lstrip()
-        output_splitted = re.split(" |\n|\r|\t|\f|\.|\(", output_decoded)
+        output_splitted = re.split(" |\n|\r|\t|\f|\.|\(|\)|\'|\"", output_decoded)
         if (len(output_splitted) > 0):
             output_str = output_splitted[0]
         else:
