@@ -1,4 +1,5 @@
 import datasets
+import go_funccraft
 from pathlib import Path
 import python_funccraft
 
@@ -7,6 +8,7 @@ DATASET_SIZE=1000
 
 LANG_MAP = {
     "python": python_funccraft.parseFunc,
+    "go"    : go_funccraft.parseFunc
 }
 
 
@@ -14,7 +16,7 @@ def prepare(lang: str) -> datasets.Dataset:
     # Implement dataset preparation code here
     dataset = datasets.load_dataset(
         path="code-search-net/code_search_net",
-        name="python",
+        name=lang,
         split="test", trust_remote_code=True
     )
 

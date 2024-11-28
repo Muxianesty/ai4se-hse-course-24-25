@@ -1,30 +1,26 @@
-import re
 from tree_sitter import Language, Node, Parser
-import tree_sitter_python
+import tree_sitter_go
 from typing import Tuple
 
-
-PY_LANG = Language(tree_sitter_python.language())
-PARSER = Parser(PY_LANG)
+GO_LANG = Language(tree_sitter_go.language())
+PARSER = Parser(GO_LANG)
 
 
 def isComment(node: Node) -> bool:
-    node_text = node.text.decode()
-    has_comment_part = re.match(r"^r?(?:(?:\"\"\")|(?:'''))", node_text) is not None
-    return (node.type == "comment" or (node.type == "expression_statement" and has_comment_part))
+    return node.type == "comment"
 
 
 def parseFunc(func_str: str) -> Tuple[str, str, str]:
     tree = PARSER.parse(func_str.encode())
     root_node = tree.root_node
-    assert root_node.type == "module"
+    assert root_node.type == "source_file"
     assert root_node.child_count == 1
 
     func_node = root_node.child(0)
-    assert func_node.type == "function_definition"
+    assert func_node.type in ["function_declaration", "method_declaration"] 
 
     func_name_node = func_node.child_by_field_name("name")
-    assert func_name_node.type == "identifier"
+    assert func_name_node.type in ["identifier", "field_identifier"]
     func_name_str = func_name_node.text.decode()
 
     func_body_node = func_node.child_by_field_name("body")

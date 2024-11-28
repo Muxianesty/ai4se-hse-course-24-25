@@ -28,7 +28,7 @@ def parse_args():
         '-l',
         '--lang',
         help='Dataset code language',
-        choices=['python'],
+        choices=['python', 'go'],
         default='python',
     )
 
